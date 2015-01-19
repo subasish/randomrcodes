@@ -1,3 +1,10 @@
+## Install rCharts
+## library(devtools)
+## install_github('rCharts', 'ramnathv')
+
+library(rCharts)
+
+
 c1 <- nPlot(billions ~ Time, 
             group = "Location", 
             data = region_dat, 

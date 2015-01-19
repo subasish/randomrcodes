@@ -1,9 +1,13 @@
+## install rCharts
+## library(devtools)
+## install_github('rCharts', 'ramnathv')
+
 library(rCharts)
-SchoolsGroup=read.csv("LA_parish.csv")
-head(SchoolsGroup)
-# These are classifications of NCAA athletic department at public universities in to 4 groups. Please see the blog post where these charts were originally used 
-# regarding more details on the origins of these data.: http://analyticsandvisualization.blogspot.com/2013/10/subsidies-revenues-and-expenses-of-ncaa.html
-tab2=dTable(SchoolsGroup, sPaginationType = "full_numbers")
+la_parish=read.csv("LA_parish.csv")
+head(la_parish)
+
+
+tab2=dTable(la_parish, sPaginationType = "full_numbers")
 tab2$templates$script =  "http://timelyportfolio.github.io/rCharts_dataTable/chart_customsort.html" 
 tab2$params$table$aoColumns =
   list(
