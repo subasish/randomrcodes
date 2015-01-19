@@ -24,4 +24,6 @@ tab2$params$table$aoColumns =
   )
 tab2
 
+
+### push rChart to rpubs
 tab2$publish("Louisiana Traffic Fatal Crashes", host = 'rpubs')
