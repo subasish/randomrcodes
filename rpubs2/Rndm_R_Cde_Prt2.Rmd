@@ -1,0 +1,187 @@
+---
+title: "Random R Codes Part-2"
+date: "2014-12-30"
+output:
+    html_document:
+        toc: true
+        theme: readable
+        highlight: zenburn
+--- 
+
+R is now a large community. Today we have 6,139 R packages. I am planning here to jot down the code snippets  based on the newer packages (by following [table of available packages, sorted by date of publication](http://cran.r-project.org/web/packages/available_packages_by_date.html)). The chunk of the codes will be taken either from the Vignette or from the main package documentation pdf. I also like to include [stack overflow threads](http://stackoverflow.com/questions/tagged/r) if there are interesting questions. These interesting and easy-to-apply codes will be applied to different data sets to develop models and assumptions. Here's **Part 2**.
+
+Five Packages used in Part 2. [Why 5? [Here's why.](http://petewarden.com)]
+
+> BCDating, historydata, USAboundaries, verification, dygraphs
+
+#### BCDating
+
+1. [Package pdf](http://cran.r-project.org/web/packages/BCDating/BCDating.pdf).
+2. Last updated: 2014-12-30
+
+Code chunk for Business Cycle Dating and Plotting Tools.
+```{r}
+
+library(BCDating)
+data("Iran.non.Oil.GDP.Cycle")
+dat <- BBQ(Iran.non.Oil.GDP.Cycle, name="Dating Business Cycles of Iran")
+plot(dat)
+plot(dat,Iran.non.Oil.GDP.Cycle)
+data("MBRI.Iran.Dating")
+plot(MBRI.Iran.Dating)
+
+data("Iran.non.Oil.GDP.Quarterly.Growth")
+data("MBRI.Iran.Dating")
+avggrowth <- avgts(Iran.non.Oil.GDP.Quarterly.Growth,MBRI.Iran.Dating)
+```
+
+Code chunk for Business Cycle Dating and Plotting Tools.
+
+```{r include=FALSE}
+cbind(avggrowth,Iran.non.Oil.GDP.Quarterly.Growth)
+plot(MBRI.Iran.Dating,avggrowth)
+plot(MBRI.Iran.Dating,Iran.non.Oil.GDP.Quarterly.Growth,averages=TRUE)
+
+data("Iran.non.Oil.GDP.Cycle")
+dat <- BBQ(Iran.non.Oil.GDP.Cycle, name="Dating Business Cycles of Iran")
+plot(dat)
+data(MBRI.Iran.Dating)
+plot(dat,MBRI.Iran.Dating)
+```
+
+#### historydata
+
+1. [Package pdf](http://cran.r-project.org/web/packages/historydata/historydata.pdf).
+2. [Git Repository](https://github.com/ropensci/historydata).
+3. Last updated: 2014-12-29
+
+Two stackoverflow threads.
+
+1. [To get the list of data sets in a particular R package](http://stackoverflow.com/questions/27709936/to-get-the-list-of-data-sets-in-a-particular-r-package)
+2. [Capture output of data](http://stackoverflow.com/questions/15183165/capture-output-of-data)
+
+```{r}
+library(historydata)
+data.frame(data(package = "historydata")$results)[-c(1, 2)] 
+
+# Roman Catholic dioceses in the United States, Canada, and Mexico
+dim(catholic_dioceses)
+
+# Early colleges in the United States
+head(early_colleges)
+if(require(ggplot2)) 
+    {
+      ggplot(early_colleges, aes(x = established)) + geom_bar(binwidth = 5) +
+      ggtitle("Founding Dates of Early American Colleges")
+    }
+dim(early_colleges)
+
+# Population estimates of American Jews
+head(sarna, 2)
+dim(sarna)
+
+head(us_national_population)
+if(require(ggplot2))
+    {
+      ggplot(us_national_population,
+             aes(x = year, y = population)) +
+      geom_line() +
+      ggtitle("Population of the United States, 1790-2010")
+    }
+
+head(us_state_populations, 2)
+dim(us_state_populations)
+```
+
+#### USAboundaries
+
+1. [Package pdf](http://cran.r-project.org/web/packages/USAboundaries/USAboundaries.pdf).
+2. [Vignette](http://cran.r-project.org/web/packages/USAboundaries/vignettes/usboundaries.html).
+3. [Git Repository](https://github.com/ropensci/USAboundaries).
+4. Last updated: 2014-12-29
+
+
+```{r}
+library(USAboundaries)
+data.frame(data(package = "USAboundaries")$results)[-c(1, 2)] 
+library(maptools)
+library(sp)
+library(ggplot2)
+
+us_1844 <- us_boundaries(as.Date("1844-07-04"))
+plot(us_1844)
+
+va_1844 <- us_boundaries(as.Date("1844-07-04"), states = "Louisiana", type = "county")
+plot(va_1844)
+
+# head(hist_us_counties)    # don't run ever
+# head(hist_us_states)      # don't run ever
+
+```
+
+#### verification
+
+1. [Package pdf](http://cran.r-project.org/web/packages/verification/verification.pdf).
+2. Last updated: 2014-12-29
+
+```{r}
+library(verification)
+data.frame(data(package = "verification")$results)[-c(1, 2)] 
+
+## Data from Wilks, table 7.3 page 246.
+## Book: Wilks, D. S. (1995) Statistical Methods in the Atmospheric Sciences Chapter 7, San Diego: Aca- demic Press.
+
+y.i   <- c(0,0.05, seq(0.1, 1, 0.1))
+obar.i <- c(0.006, 0.019, 0.059, 0.15, 0.277, 0.377, 0.511,
+                 0.587, 0.723, 0.779, 0.934, 0.933)
+prob.y<- c(0.4112, 0.0671, 0.1833, 0.0986, 0.0616, 0.0366,
+                0.0303,  0.0275, 0.245, 0.022, 0.017, 0.203)
+obar<- 0.162
+
+attribute(y.i, obar.i, prob.y, obar, main = "Sample Attribute Plot")
+obs<- round(runif(100))
+pred<- runif(100)
+A<- verify(obs, pred, frcst.type = "prob", obs.type = "binary")
+attribute(A, main = "Alternative plot", xlab = "Alternate x label")
+
+## to add a line from another model
+obs<- round(runif(100))
+pred<- runif(100)
+B<- verify(obs, pred, frcst.type = "prob", obs.type = "binary")
+lines.attrib(B, col = "green")
+
+## Same with confidence intervals
+attribute(A, main = "Alternative plot", xlab = "Alternate x label", CI =TRUE)
+
+#### add lines to plot
+data(pop)
+d <- pop.convert()
+  
+mod24 <- verify(d$obs_rain, d$p24_rain, bins = FALSE)
+mod48 <- verify(d$obs_rain, d$p48_rain, bins = FALSE)
+plot(mod24, freq = FALSE)
+lines.attrib(mod48, col = "green", lwd = 2, type = "b")
+
+
+
+```
+
+#### dygraphs
+[dygraphs](http://dygraphs.com) is a fast, flexible open source JavaScript charting library.
+
+1. [Package pdf](http://cran.r-project.org/web/packages/dygraphs/dygraphs.pdf).
+2. [Git Repository](http://rstudio.github.io/dygraphs/).
+3. [Stack Overflow Questions](http://stackoverflow.com/questions/tagged/dygraphs)
+4. Last updated: 2014-12-29
+
+
+```{r}
+library(dygraphs)
+dygraph(presidents, main = "Presidential Approval") %>%
+      dyAxis("y", valueRange = c(0, 100)) %>%
+      dyAnnotation("1950-7-1", text = "A", tooltip = "Korea") %>%
+      dyAnnotation("1965-1-1", text = "B", tooltip = "Vietnam")
+
+```
+--------------------
+- Compiled by [Subasish Das](http://subasish.tumblr.com)

@@ -1,0 +1,236 @@
+---
+title: "Random R Codes Part-3"
+date: "2014-12-31"
+output:
+    html_document:
+        toc: true
+        toc_depth: 4
+        theme: cerulean
+        highlight: zenburn
+---
+
+R is now a <span style="color:red">large community</span>. Today we have ~~4,567~~ 6,139 R packages. My attempt here is to jot down the code snippets  based on the newer packages (by following [table of available packages, sorted by date of publication](http://cran.r-project.org/web/packages/available_packages_by_date.html))[^1]. 
+
+***
+
+The chunk of the codes will be taken either from the Vignette or from the main package documentation pdf. I also like to include [stack overflow threads](http://stackoverflow.com/questions/tagged/r) if there are interesting questions. These interesting and easy-to-apply codes will be applied to different data sets to develop models and assumptions. In this random version, exploration on `rmarkdown` is done.
+
+[^1]: Compiled by [Subasish Das](http://subasish.tumblr.com)
+
+<p align="center">
+![](http://bit.ly/1HZEXkn)
+</p>
+
+### Few Markdown Tips
+
+[R Markdown Reference Guide](http://rmarkdown.rstudio.com/RMarkdownReferenceGuide.pdf) is a good source in learning `rmarkdown`. A must read.
+
+
+#### Output Style
+
+<pre>
+highlight= "default", "tango", "pygments", "kate", "monochrome", "espresso", "zenburn", "haddock", and "textmate"
+theme= "default", "cerulean", "journal", "flatly", "readable", "spacelab", "united", and "cosmo"
+
+
+output:
+    html_document:
+        toc: true
+        toc_depth: 4
+        theme: cerulean
+        highlight: zenburn
+</pre>
+
+#### Tables
+
+<pre>
+| Item | Nuts and Bolts          |
+| ------------- | ----------- |
+| Why      | ~~Don't~~ why me|
+| Dude     | _Don't_ dude me, Bro.    |
+
+| Left-Aligned  | Center Aligned  | Right Aligned |
+| :------------ |:---------------:| -----:|
+| Left is a      | Center is not | Right is a |
+| Left is a      | always        |   Right. Right is not |
+| Left is a Left | centered        |   a `right`|
+
+
+
+</pre>
+
+| Item | Nuts and Bolts          |
+| ------------- | ----------- |
+| Why      | ~~Don't~~ why me|
+| Dude     | _Don't_ dude me, Bro.    |
+
+| Left-Aligned  | Center Aligned  | Right Aligned |
+| :------------ |:---------------:| -----:|
+| Left is a      | Center is not | Right is a |
+| Left is a      | always        |   Right. Right is not |
+| Left is a Left | centered        |   a `right`|
+
+
+<pre>
+Ordinal indicators are sometimes written as superscripts (1^st^, 2^nd^, 3^rd^, 4^th^, rather than 1st, 2nd, 3rd, 4th), although many English-language style guides recommend against this use. Other languages use a similar convention, such as 1^er^ or 2^e^ in French, or 4ª and 4º in Italian, Portuguese, and Spanish.
+
+Also in mathematics and computing, a subscript can be used to represent the radix, or base, of a written number, especially where multiple bases are used alongside each other. For example, comparing values in hexadecimal, denary, and octal one might write C~hex~ = 12~dec~ = 14~oct~.
+
+</pre>
+
+Ordinal indicators are sometimes written as superscripts (1^st^, 2^nd^, 3^rd^, 4^th^, rather than 1st, 2nd, 3rd, 4th), although many English-language style guides recommend against this use. Other languages use a similar convention, such as 1^er^ or 2^e^ in French, or 4ª and 4º in Italian, Portuguese, and Spanish.
+
+***
+
+Also in mathematics and computing, a subscript can be used to represent the radix, or base, of a written number, especially where multiple bases are used alongside each other. For example, comparing values in hexadecimal, denary, and octal one might write C~hex~ = 12~dec~ = 14~oct~.
+
+#### Equation
+
+<pre>
+$$
+\begin{aligned}
+\dot{x} & = \sigma(y-x) \\
+\dot{y} & = \rho x - y - xz \\
+\dot{z} & = -\beta z + xy
+\end{aligned} 
+$$
+</pre>
+
+$$
+\begin{aligned}
+\dot{x} & = \sigma(y-x) \\
+\dot{y} & = \rho x - y - xz \\
+\dot{z} & = -\beta z + xy
+\end{aligned} 
+$$
+
+### Multiple Correspondence Analysis (MCA)
+
+**Five** R packages are widely used for `Multiple Correspondence Analysis (MCA)`. **Part 3** compiles MCA codes. 
+
+<p align="center">
+![](http://media.tumblr.com/tumblr_m8l6ysMFSL1qf08kt.gif)
+</p>
+
+The packages are:
+
+> Factominer, MASS, ade4, ca, homals
+
+> I have used the codes compiled by [Gaston Sanchez](http://gastonsanchez.com/blog/how-to/2012/10/13/MCA-in-R.html)
+
+
+#### FactoMineR
+
+1. [Package pdf](http://cran.r-project.org/web/packages/FactoMineR/FactoMineR.pdf).
+2. [Website](http://factominer.free.fr).
+3. [Paper](http://factominer.free.fr/docs/article_FactoMineR.pdf)
+4. Last updated: 2014-XX-XX
+
+```{r fig_retina: 2}
+library(FactoMineR)
+library(ggplot2)
+
+data(tea)
+newtea = tea[, c("Tea", "How", "how", "sugar", "where", "always")]
+head(newtea, 3)
+
+cats = apply(newtea, 2, function(x) nlevels(as.factor(x)))
+mca1 = MCA(newtea, graph = FALSE)
+mca1_vars_df = data.frame(mca1$var$coord, Variable = rep(names(cats), cats))
+mca1_obs_df = data.frame(mca1$ind$coord)
+ggplot(data=mca1_vars_df, aes(x = Dim.1, y = Dim.2, label = rownames(mca1_vars_df))) +
+ geom_hline(yintercept = 0, colour = "gray70") +
+ geom_vline(xintercept = 0, colour = "gray70") +
+ geom_text(aes(colour=Variable)) +
+ ggtitle("MCA plot of variables using R package FactoMineR")
+ggplot(data = mca1_obs_df, aes(x = Dim.1, y = Dim.2)) +
+  geom_hline(yintercept = 0, colour = "gray70") +
+  geom_vline(xintercept = 0, colour = "gray70") +
+  geom_point(colour = "gray50", alpha = 0.7) +
+  geom_density2d(colour = "gray80") +
+  geom_text(data = mca1_vars_df, aes(x = Dim.1, y = Dim.2, 
+                label = rownames(mca1_vars_df), colour = Variable)) +
+  ggtitle("MCA plot of variables using R package FactoMineR") +
+  scale_colour_discrete(name = "Variable")
+
+```
+
+#### MASS
+
+1. [Package pdf](http://cran.r-project.org/web/packages/MASS/MASS.pdf).
+2. Last updated: 2014-XX-XX
+
+```{r}
+library(MASS)
+mca2 = mca(newtea, nf = 5)
+mca2$d^2
+
+mca2_vars_df = data.frame(mca2$cs, Variable = rep(names(cats), cats))
+ggplot(data = mca2_vars_df, 
+       aes(x = X1, y = X2, label = rownames(mca2_vars_df))) +
+  geom_hline(yintercept = 0, colour = "gray70") +
+  geom_vline(xintercept = 0, colour = "gray70") +
+  geom_text(aes(colour = Variable)) +
+  ggtitle("MCA plot of variables using R package MASS")
+```
+
+#### ade4
+
+1. [Package pdf](http://cran.r-project.org/web/packages/ade4/ade4.pdf).
+2. Last updated: 2014-XX-XX
+
+```{r}
+library(ade4)
+mca3 = dudi.acm(newtea, scannf = FALSE, nf = 5)
+mca3$eig
+mca3_vars_df = data.frame(mca3$co, Variable = rep(names(cats), cats))
+ggplot(data = mca3_vars_df, 
+       aes(x = Comp1, y = Comp2, label = rownames(mca3_vars_df))) +
+  geom_hline(yintercept = 0, colour = "gray70") +
+  geom_vline(xintercept = 0, colour = "gray70") +
+  geom_text(aes(colour = Variable)) +
+  ggtitle("MCA plot of variables using R package ade4")
+```
+
+#### ca
+
+1. [Package pdf](http://cran.r-project.org/web/packages/ca/ca.pdf).
+2. Last updated: 2014-XX-XX
+
+```{r}
+library(ca)
+mca4 = mjca(newtea, lambda = "indicator", nd = 5)
+mca4$sv^2
+mca4_vars_df = data.frame(mca4$colcoord, Variable = rep(names(cats), cats))
+rownames(mca4_vars_df) = mca4$levelnames
+ggplot(data = mca4_vars_df, 
+       aes(x = X1, y = X2, label = rownames(mca4_vars_df))) +
+  geom_hline(yintercept = 0, colour = "gray70") +
+  geom_vline(xintercept = 0, colour = "gray70") +
+  geom_text(aes(colour = Variable)) +
+  ggtitle("MCA plot of variables using R package ca")
+```
+
+#### homals
+
+1. [Package pdf](http://cran.r-project.org/web/packages/homals/homals.pdf).
+2. Last updated: 2014-XX-XX
+
+<pre>
+library(homals)
+mca5 = homals(newtea, ndim = 5, level = "nominal")
+mca5$eigenvalues
+mca5$catscores
+
+D1 = unlist(lapply(mca5$catscores, function(x) x[,1]))
+D2 = unlist(lapply(mca5$catscores, function(x) x[,2]))
+
+mca5_vars_df = data.frame(D1 = D1, D2 = D2, Variable = rep(names(cats), cats))
+rownames(mca5_vars_df) = unlist(sapply(mca5$catscores, function(x) rownames(x)))
+ggplot(data = mca5_vars_df, 
+       aes(x = D1, y = D2, label = rownames(mca5_vars_df))) +
+  geom_hline(yintercept = 0, colour = "gray70") +
+  geom_vline(xintercept = 0, colour = "gray70") +
+  geom_text(aes(colour = Variable)) +
+  ggtitle("MCA plot of variables using R package homals")
+</pre>

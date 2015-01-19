@@ -1,0 +1,116 @@
+---
+title: "Random R Codes Part-1"
+date: "2014-12-30"
+output:
+    html_document:
+        toc: true
+        theme: journal
+        highlight: zenburn
+--- 
+
+R is now a large community. Today we have 6,139 R packages. I am planning here to jot down the code snippets  based on the newer packages (by following [table of available packages, sorted by date of publication](http://cran.r-project.org/web/packages/available_packages_by_date.html)). The chunk of the codes will be taken either from the Vignette or from the main package documentation pdf. I also like to include [stack overflow threads](http://stackoverflow.com/questions/tagged/r) if there are interesting questions. These interesting and easy-to-apply codes will be applied to different data sets to develop models and assumptions. Here's **Part 1**.
+
+Five Packages used in Part 1. [Why 5? [Here's why.](http://petewarden.com)]
+
+> countrycode, tableone, aRxiv, exams, gender
+
+### countrycode
+
+1. [Package pdf](http://cran.r-project.org/web/packages/countrycode/countrycode.pdf).
+2. [Git Repository](https://github.com/vincentarelbundock/countrycode).
+3. Last updated: 2014-12-29
+
+```{r}
+library(countrycode)
+
+countrycode(232,"cown","country.name")
+countrycode("United States","country.name","iso3c")
+countrycode("DZA","iso3c","cowc")
+
+cowcodes <- c("ALG","ALB","UKG","CAN","USA")
+countrycode(cowcodes,"cowc","iso3c")
+
+isocodes <- c(12,8,826,124,840)
+var1     <- sample(1:500,5)
+var2     <- sample(1:500,5)
+df1      <- as.data.frame(cbind(cowcodes,var1))
+df2      <- as.data.frame(cbind(isocodes,var2))
+df1
+df2
+df1$iso3c   <- countrycode(df1$cowcodes, "cowc", "iso3c")
+df2$iso3c   <- countrycode(df2$isocodes, "iso3n", "iso3c")
+df3         <- merge(df1,df2,id="iso3c")
+df3$country <- countrycode(df3$iso3c, "iso3c", "country.name")
+df3
+```
+
+### tableone
+
+1. [Package pdf](http://cran.r-project.org/web/packages/tableone/tableone.pdf).
+2. [Vignette](http://cran.r-project.org/web/packages/tableone/vignettes/introduction.html).
+3. [Git Repository](https://github.com/kaz-yos/tableone).
+4. Last updated: 2014-12-29
+
+```{r}
+library(tableone)
+library(survival)
+
+## Simplest use case
+head(pbc)
+dim(pbc)
+CreateTableOne(data = pbc)
+
+
+library(vcd)
+head(Arthritis)
+dim(Arthritis)
+CreateTableOne(data = Arthritis)
+
+```
+### aRxiv
+
+1. [Package pdf](http://cran.r-project.org/web/packages/aRxiv/aRxiv.pdf).
+2. [Vignette](http://cran.r-project.org/web/packages/aRxiv/vignettes/aRxiv.html).
+3. [Git Repository](https://github.com/ropensci/aRxiv).
+4. Last updated: 2014-12-29
+
+
+```{r}
+library(aRxiv)
+deconv <- arxiv_search('au:"Dragan Slavkov Hajdukovic"', limit=21)
+nrow(deconv)
+deconv[, c('title', 'authors')]
+```
+
+
+### exams
+
+1. [Package pdf](http://cran.r-project.org/web/packages/exams/exams.pdf).
+2. [Vignette](http://cran.r-project.org/web/packages/exams/vignettes/exams.pdf).
+3. Last updated: 2014-12-29
+
+*Coding is not performed*
+
+### gender
+
+1. [Package pdf](http://cran.r-project.org/web/packages/gender/gender.pdf).
+2. [Vignette](http://cran.r-project.org/web/packages/gender/vignettes/predicting-gender.html).
+3. [Git Repository](https://github.com/ropensci/gender).
+4. Last updated: 2014-12-29
+
+```{r}
+library(gender)
+gender("Bobby")
+gender("Nick")
+gender("Lorretta")
+gender("Bobby", method = "ipums", years = 1900)
+gender("Bobby", method = "ssa", years = 1950)
+gender("Bobby", method = "ssa", years = 2000)
+
+
+```
+
+
+
+--------------------
+- Compiled by [Subasish Das](http://subasish.tumblr.com)
